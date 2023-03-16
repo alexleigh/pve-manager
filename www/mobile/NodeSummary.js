@@ -12,6 +12,12 @@ Ext.define('PVE.NodeInfo', {
 	    '<tr><td>Memory:</td><td>{[this.meminfo(values)]}</td></tr>',
 	    '<tr><td>CPU:</td><td>{[this.cpuinfo(values)]}</td></tr>',
 	    '<tr><td>Uptime:</td><td>{[Proxmox.Utils.format_duration_long(values.uptime)]}</td></tr>',
+	    '<tr><td>CPU temp:</td><td>{[this.cputemp(values)]}</td></tr>',
+	    '<tr><td>PCH temp:</td><td>{[this.pchtemp(values)]}</td></tr>',
+	    '<tr><td>NVMe1 temp:</td><td>{[this.nvme1temp(values)]}</td></tr>',
+	    '<tr><td>NVMe2 temp:</td><td>{[this.nvme2temp(values)]}</td></tr>',
+	    '<tr><td>HD1 temp:</td><td>{[this.hd1temp(values)]}</td></tr>',
+	    '<tr><td>HD2 temp:</td><td>{[this.hd2temp(values)]}</td></tr>',
 	    '</table>',
 	    {
 		meminfo: function(values) {
@@ -28,6 +34,18 @@ Ext.define('PVE.NodeInfo', {
 		    var per = values.cpu * 100;
 		    return per.toFixed(2) + "% (" + values.cpuinfo.cpus + " CPUs)";
 		},
+		rendertemp: function(temp) {
+			if (!temp) {
+				return '-';
+			}
+			return temp.used.toFixed(1) + '°C (crit: ' + temp.total.toFixed(1) + '°C)';
+		},
+		cputemp: function(values) { return this.rendertemp(values.cputemp); },
+		pchtemp: function(values) { return this.rendertemp(values.pchtemp); },
+		nvme1temp: function(values) { return this.rendertemp(values.nvme1temp); },
+		nvme2temp: function(values) { return this.rendertemp(values.nvme2temp); },
+		hd1temp: function(values) { return this.rendertemp(values.hd1temp); },
+		hd2temp: function(values) { return this.rendertemp(values.hd2temp); },
 	    },
 	],
     },
@@ -158,6 +176,39 @@ Ext.define('PVE.NodeSummary', {
 	});
     },
 
+	autoRefreshTask: null,
+	setMenuItems: function() {
+	var me = this;
+	if (me.autoRefreshTask === null) {
+		var refreshButton = {
+			text: gettext('Enable Auto-refresh'),
+			handler: function() {
+				me.autoRefreshTask = setInterval(function() { me.reload(); }, 3000);
+				me.setMenuItems();
+			}
+		}
+	} else {
+		var refreshButton = {
+			text: gettext('Disable Auto-refresh'),
+			handler: function() {
+				clearInterval(me.autoRefreshTask);
+				me.autoRefreshTask = null;
+				me.setMenuItems();
+			}
+		}
+	};
+
+	me.down('pveMenuButton').setMenuItems([
+		{
+		text: gettext('Tasks'),
+		handler: function() {
+			PVE.Workspace.gotoPage('nodes/' + me.nodename + '/tasks');
+		},
+		},
+		refreshButton,
+	]);
+	},
+
     initialize: function() {
 	var me = this;
 
@@ -170,14 +221,7 @@ Ext.define('PVE.NodeSummary', {
 
 	me.down('titlebar').setTitle(gettext('Node') + ': ' + me.nodename);
 
-	me.down('pveMenuButton').setMenuItems([
-	    {
-		text: gettext('Tasks'),
-		handler: function() {
-		    PVE.Workspace.gotoPage('nodes/' + me.nodename + '/tasks');
-		},
-	    },
-	]);
+	me.setMenuItems();
 
 	me.store = Ext.create('Ext.data.Store', {
 	    fields: ['name', 'vmid', 'nodename', 'type', 'memory', 'uptime', 'mem', 'maxmem', 'cpu', 'cpus'],
