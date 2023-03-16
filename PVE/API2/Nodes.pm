@@ -413,6 +413,65 @@ __PACKAGE__->register_method({
 	    free => $dinfo->{blocks} - $dinfo->{used},
 	};
 
+	my %sensors_config = (
+		cputemp => {
+			jsonpath => ['coretemp-isa-0000', 'Package id 0'],
+			valkey => 'temp1_input',
+			critkey => 'temp1_crit',
+		},
+		pchtemp => {
+			jsonpath => ['pch_cannonlake-virtual-0', 'temp1'],
+			valkey => 'temp1_input',
+		},
+		nvmetemp => {
+			jsonpath => ['nvme-pci-0100', 'Composite'],
+			valkey => 'temp1_input',
+			critkey => 'temp1_crit',
+		},
+		hd1temp => {
+			jsonpath => ['drivetemp-scsi-0-0', 'temp1'],
+			valkey => 'temp1_input',
+			critkey => 'temp1_crit',
+		},
+		hd2temp => {
+			jsonpath => ['drivetemp-scsi-1-0', 'temp1'],
+			valkey => 'temp1_input',
+			critkey => 'temp1_crit',
+		},
+		hd3temp => {
+			jsonpath => ['drivetemp-scsi-2-0', 'temp1'],
+			valkey => 'temp1_input',
+			critkey => 'temp1_crit',
+		},
+	);
+	my $temp_default_val = 0;
+	my $temp_default_crit = 80;
+
+	my $sensors = eval { decode_json(`sensors -j`); };
+	if (defined($sensors)) {
+		keys %sensors_config;
+		while (my ($k, $v) = each %sensors_config) {
+			if (!defined($v->{jsonpath})) { next; }
+			my $currref = $sensors;
+			my $pathdefined = 1;
+			for my $pathseg (@{$v->{jsonpath}}) {
+				if (defined($currref->{$pathseg})) {
+					$currref = $currref->{$pathseg}
+				} else {
+					$pathdefined = 0;
+					last;
+				}
+			}
+			if (!$pathdefined) { next; }
+			$res->{$k} = {
+				used => defined($v->{valkey}) && defined($currref->{$v->{valkey}})
+					? $currref->{$v->{valkey}} : $temp_default_val,
+				total => defined($v->{critkey}) && defined($currref->{$v->{critkey}})
+					? $currref->{$v->{critkey}} : $temp_default_crit,
+			};
+		}
+	}
+
 	return $res;
     }});
 
