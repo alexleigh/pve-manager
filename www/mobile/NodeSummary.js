@@ -12,6 +12,10 @@ Ext.define('PVE.NodeInfo', {
 	    '<tr><td>Memory:</td><td>{[this.meminfo(values)]}</td></tr>',
 	    '<tr><td>CPU:</td><td>{[this.cpuinfo(values)]}</td></tr>',
 	    '<tr><td>Uptime:</td><td>{[Proxmox.Utils.format_duration_long(values.uptime)]}</td></tr>',
+	    '<tr><td>CPU temp:</td><td>{[this.cputemp(values)]}</td></tr>',
+	    '<tr><td>HD1 temp:</td><td>{[this.hd1temp(values)]}</td></tr>',
+	    '<tr><td>HD2 temp:</td><td>{[this.hd2temp(values)]}</td></tr>',
+	    '<tr><td>HD3 temp:</td><td>{[this.hd3temp(values)]}</td></tr>',
 	    '</table>',
 	    {
 		meminfo: function(values) {
@@ -27,7 +31,17 @@ Ext.define('PVE.NodeInfo', {
 		    }
 		    var per = values.cpu * 100;
 		    return per.toFixed(2) + "% (" + values.cpuinfo.cpus + " CPUs)";
-		}
+		},
+		rendertemp: function(temp) {
+			if (!temp) {
+				return '-';
+			}
+			return temp.used + '°C (crit: ' + temp.total + '°C)';
+		},
+		cputemp: function(values) { return this.rendertemp(values.cputemp); },
+		hd1temp: function(values) { return this.rendertemp(values.hd1temp); },
+		hd2temp: function(values) { return this.rendertemp(values.hd2temp); },
+		hd3temp: function(values) { return this.rendertemp(values.hd3temp); }
 	    }
 	]
     },
