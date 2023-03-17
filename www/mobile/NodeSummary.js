@@ -173,6 +173,39 @@ Ext.define('PVE.NodeSummary', {
 
     },
 
+	autoRefreshTask: null,
+	setMenuItems: function() {
+	var me = this;
+	if (me.autoRefreshTask === null) {
+		var refreshButton = {
+			text: gettext('Enable Auto-refresh'),
+			handler: function() {
+				me.autoRefreshTask = setInterval(function() { me.reload(); }, 3000);
+				me.setMenuItems();
+			}
+		}
+	} else {
+		var refreshButton = {
+			text: gettext('Disable Auto-refresh'),
+			handler: function() {
+				clearInterval(me.autoRefreshTask);
+				me.autoRefreshTask = null;
+				me.setMenuItems();
+			}
+		}
+	};
+
+	me.down('pveMenuButton').setMenuItems([
+		{
+		text: gettext('Tasks'),
+		handler: function() {
+			PVE.Workspace.gotoPage('nodes/' + me.nodename + '/tasks');
+		}
+		},
+		refreshButton
+	]);
+	},
+
     initialize: function() {
 	var me = this;
 
@@ -185,14 +218,7 @@ Ext.define('PVE.NodeSummary', {
 
 	me.down('titlebar').setTitle(gettext('Node') + ': ' + me.nodename);
 
-	me.down('pveMenuButton').setMenuItems([
-	    {
-		text: gettext('Tasks'),
-		handler: function() {
-		    PVE.Workspace.gotoPage('nodes/' + me.nodename + '/tasks');
-		}
-	    },
-	]);
+	me.setMenuItems();
 
 	me.store = Ext.create('Ext.data.Store', {
 	    fields: [ 'name', 'vmid', 'nodename', 'type', 'memory', 'uptime', 'mem', 'maxmem', 'cpu', 'cpus'],
