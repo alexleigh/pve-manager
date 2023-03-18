@@ -418,6 +418,15 @@ __PACKAGE__->register_method({
 			valkey => 'temp1_input',
 			critkey => 'temp1_crit',
 		},
+		pchtemp => {
+			jsonpath => ['pch_cannonlake-virtual-0', 'temp1'],
+			valkey => 'temp1_input',
+		},
+		nvmetemp => {
+			jsonpath => ['nvme-pci-0100', 'Composite'],
+			valkey => 'temp1_input',
+			critkey => 'temp1_crit',
+		},
 		hd1temp => {
 			jsonpath => ['drivetemp-scsi-0-0', 'temp1'],
 			valkey => 'temp1_input',

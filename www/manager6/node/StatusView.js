@@ -2,7 +2,7 @@ Ext.define('PVE.node.StatusView', {
     extend: 'Proxmox.panel.StatusView',
     alias: 'widget.pveNodeStatus',
 
-    height: 375,
+    height: 405,
     bodyPadding: '15 5 15 5',
 
     layout: {
@@ -89,6 +89,22 @@ Ext.define('PVE.node.StatusView', {
 	    title: gettext('CPU temp'),
 	    valueField: 'cputemp',
 	    maxField: 'cputemp',
+	    renderer: Proxmox.Utils.render_node_temp,
+	},
+	{
+	    itemId: 'pchtemp',
+	    iconCls: 'fa fa-fw fa-thermometer-half',
+	    title: gettext('PCH temp'),
+	    valueField: 'pchtemp',
+	    maxField: 'pchtemp',
+	    renderer: Proxmox.Utils.render_node_temp,
+	},
+	{
+	    itemId: 'nvmetemp',
+	    iconCls: 'fa fa-fw fa-thermometer-half',
+	    title: gettext('NVMe temp'),
+	    valueField: 'nvmetemp',
+	    maxField: 'nvmetemp',
 	    renderer: Proxmox.Utils.render_node_temp,
 	},
 	{
