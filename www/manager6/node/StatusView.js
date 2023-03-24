@@ -2,7 +2,7 @@ Ext.define('PVE.node.StatusView', {
     extend: 'Proxmox.panel.StatusView',
     alias: 'widget.pveNodeStatus',
 
-    height: 405,
+    height: 420,
     bodyPadding: '15 5 15 5',
 
     layout: {
@@ -84,27 +84,16 @@ Ext.define('PVE.node.StatusView', {
 	    renderer: Proxmox.Utils.render_node_size_usage,
 	},
 	{
+	    xtype: 'box',
+	    colspan: 2,
+	    padding: '0 0 20 0',
+	},
+	{
 	    itemId: 'cputemp',
 	    iconCls: 'fa fa-fw fa-thermometer-half',
 	    title: gettext('CPU temp'),
 	    valueField: 'cputemp',
 	    maxField: 'cputemp',
-	    renderer: Proxmox.Utils.render_node_temp,
-	},
-	{
-	    itemId: 'pchtemp',
-	    iconCls: 'fa fa-fw fa-thermometer-half',
-	    title: gettext('PCH temp'),
-	    valueField: 'pchtemp',
-	    maxField: 'pchtemp',
-	    renderer: Proxmox.Utils.render_node_temp,
-	},
-	{
-	    itemId: 'nvmetemp',
-	    iconCls: 'fa fa-fw fa-thermometer-half',
-	    title: gettext('NVMe temp'),
-	    valueField: 'nvmetemp',
-	    maxField: 'nvmetemp',
 	    renderer: Proxmox.Utils.render_node_temp,
 	},
 	{
@@ -116,11 +105,27 @@ Ext.define('PVE.node.StatusView', {
 	    renderer: Proxmox.Utils.render_node_temp,
 	},
 	{
+	    itemId: 'pchtemp',
+	    iconCls: 'fa fa-fw fa-thermometer-half',
+	    title: gettext('PCH temp'),
+	    valueField: 'pchtemp',
+	    maxField: 'pchtemp',
+	    renderer: Proxmox.Utils.render_node_temp,
+	},
+	{
 	    itemId: 'hd2temp',
 	    iconCls: 'fa fa-fw fa-thermometer-half',
 	    title: gettext('HD2 temp'),
 	    valueField: 'hd2temp',
 	    maxField: 'hd2temp',
+	    renderer: Proxmox.Utils.render_node_temp,
+	},
+	{
+	    itemId: 'nvmetemp',
+	    iconCls: 'fa fa-fw fa-thermometer-half',
+	    title: gettext('NVMe temp'),
+	    valueField: 'nvmetemp',
+	    maxField: 'nvmetemp',
 	    renderer: Proxmox.Utils.render_node_temp,
 	},
 	{
